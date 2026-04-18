@@ -1,0 +1,20 @@
+scraping:
+  request_delay_seconds: 3
+  request_timeout_seconds: 30
+  playwright_headless: true
+
+state:
+  db_path: "data/seen_listings.db"
+  listing_ttl_days: 30
+
+reporting:
+  output_dir: "reports"
+
+notifications:
+  email:
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    use_tls: true
+    from_address: "${SMTP_USER}"
+    to_addresses:
+      - "${NOTIFY_EMAIL}"

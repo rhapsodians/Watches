@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WatchBot Report — {{ run_date }}</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #1a1a1a; }
+  .header { background: #1a1a1a; color: #fff; padding: 20px 28px; border-radius: 8px; margin-bottom: 24px; }
+  .header h1 { margin: 0 0 8px; font-size: 22px; font-weight: 600; letter-spacing: 0.5px; }
+  .header .meta { font-size: 13px; color: #aaa; }
+  .stat { display: inline-block; margin-right: 24px; }
+  .stat strong { color: #fff; }
+  .watch-section { background: #fff; border-radius: 8px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .watch-header { background: #2c2c2c; color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .watch-header h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .watch-header .ref { font-size: 12px; color: #aaa; font-family: monospace; margin-top: 3px; }
+  .watch-stats { font-size: 13px; color: #ccc; text-align: right; }
+  .no-listings { padding: 20px; color: #888; font-size: 14px; font-style: italic; }
+  .listing { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 14px 20px; border-bottom: 1px solid #f0f0f0; align-items: start; }
+  .listing:last-child { border-bottom: none; }
+  .listing.exact-new { background: #fffbea; border-left: 4px solid #f59e0b; }
+  .listing.new-only { background: #f0fdf4; border-left: 4px solid #22c55e; }
+  .listing.seen { background: #fff; }
+  .listing-title { font-weight: 500; font-size: 14px; margin-bottom: 4px; }
+  .listing-title a { color: #1a1a1a; text-decoration: none; }
+  .listing-title a:hover { text-decoration: underline; color: #2563eb; }
+  .listing-meta { font-size: 12px; color: #666; display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-exact { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+  .badge-new { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .badge-fullset { background: #ede9fe; color: #4c1d95; border: 1px solid #a78bfa; }
+  .badge-auction { background: #fce7f3; color: #9d174d; border: 1px solid #f9a8d4; }
+  .badge-source { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .price { font-size: 16px; font-weight: 700; color: #1a1a1a; white-space: nowrap; }
+  .price-sub { font-size: 11px; color: #888; }
+  .errors { padding: 12px 20px; background: #fef2f2; border-top: 1px solid #fecaca; }
+  .errors p { margin: 0; font-size: 12px; color: #b91c1c; }
+  details summary { cursor: pointer; padding: 10px 20px; font-size: 13px; color: #888; list-style: none; }
+  details summary:hover { color: #444; }
+  .seen-list { padding: 0 20px 10px; }
+  .seen-item { font-size: 12px; color: #aaa; padding: 4px 0; border-bottom: 1px dotted #eee; }
+  .seen-item a { color: #aaa; text-decoration: none; }
+  .seen-item a:hover { color: #666; text-decoration: underline; }
+  .footer { text-align: center; color: #aaa; font-size: 12px; margin-top: 24px; }
+  .star { color: #f59e0b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>WatchBot Report — {{ run_date }}</h1>
+  <div class="meta">
+    <span class="stat">Run at <strong>{{ run_time }} UTC</strong></span>
+    <span class="stat">Targets: <strong>{{ results|length }}</strong></span>
+    <span class="stat">Total listings: <strong>{{ total_listings }}</strong></span>
+    <span class="stat">New: <strong>{{ total_new }}</strong></span>
+    <span class="stat">Exact matches: <strong>{{ total_exact_new }}</strong></span>
+  </div>
+</div>
+
+{% for result in results %}
+<div class="watch-section">
+  <div class="watch-header">
+    <div>
+      <h2>{{ result.target.brand }} — {{ result.target.model }}</h2>
+      <div class="ref">Ref: {{ result.target.reference }}</div>
+    </div>
+    <div class="watch-stats">
+      {{ result.listings|length }} listing(s)<br>
+      <strong style="color:#4ade80">{{ result.new_listings|length }} new</strong>
+    </div>
+  </div>
+
+  {% if not result.listings %}
+  <div class="no-listings">No listings found across all sources today.</div>
+  {% else %}
+
+  {# New listings first #}
+  {% for listing in result.new_listings %}
+  <div class="listing {% if listing.is_exact_ref_match %}exact-new{% else %}new-only{% endif %}">
+    <div>
+      <div class="listing-title">
+        {% if listing.is_exact_ref_match %}<span class="star">★</span> {% endif %}
+        <a href="{{ listing.url }}" target="_blank">{{ listing.title }}</a>
+      </div>
+      <div class="listing-meta">
+        <span class="badge badge-new">NEW</span>
+        {% if listing.is_exact_ref_match %}<span class="badge badge-exact">Exact Ref Match</span>{% endif %}
+        {% if listing.is_auction %}<span class="badge badge-auction">Auction</span>{% endif %}
+        {% if listing.has_full_set and result.target.prefer_full_set %}<span class="badge badge-fullset">Full Set ✓</span>{% endif %}
+        <span class="badge badge-source">{{ listing.source }}</span>
+        {% if listing.condition %}<span>{{ listing.condition }}</span>{% endif %}
+        {% if listing.is_auction and listing.auction_end_date %}<span>Ends {{ listing.auction_end_date }}</span>{% endif %}
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div class="price">{{ listing.display_price }}</div>
+      {% if result.target.prefer_full_set and listing.has_full_set is none %}<div class="price-sub" style="color:#f59e0b">Papers unknown</div>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {# Previously seen listings, collapsed #}
+  {% set seen = result.seen_listings %}
+  {% if seen %}
+  <details>
+    <summary>{{ seen|length }} previously seen listing(s) — click to expand</summary>
+    <div class="seen-list">
+      {% for listing in seen %}
+      <div class="seen-item">
+        <a href="{{ listing.url }}" target="_blank">{{ listing.title }}</a>
+        — {{ listing.display_price }}
+        <span class="badge badge-source" style="font-size:10px">{{ listing.source }}</span>
+        {% if listing.has_full_set and result.target.prefer_full_set %}<span style="color:#7c3aed;font-size:10px">Full Set ✓</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+  {% endif %}
+  {% endif %}
+
+  {% if result.errors %}
+  <div class="errors">
+    <p><strong>Scraper warnings:</strong> {{ result.errors | join(' · ') }}</p>
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<div class="footer">Generated by WatchBot · UK pre-owned search · {{ run_date }}</div>
+</body>
+</html>

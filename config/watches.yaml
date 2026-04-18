@@ -1,0 +1,32 @@
+watches:
+  - brand: Cartier
+    model: Tank Louis Cartier
+    reference: "WGTA0091"
+    aliases:
+      - "WG TA 0091"
+      - "WGTA 0091"
+    prefer_full_set: false
+
+  - brand: Omega
+    model: Specialities CK 859
+    reference: "511.12.39.21.99.002"
+    aliases:
+      - "51112392199002"
+      - "511-12-39-21-99-002"
+    prefer_full_set: false
+
+  - brand: A. Lange & Söhne
+    model: Lange 1
+    reference: "101.032"
+    aliases:
+      - "101032"
+      - "101-032"
+    prefer_full_set: true
+
+  - brand: Parmigiani Fleurier
+    model: Tonda PF GMT Rattrapante
+    reference: "PFC905-1020001-100182"
+    aliases:
+      - "PFC9051020001100182"
+      - "PFC905-1020001-100182-EN"
+    prefer_full_set: false
