@@ -11,7 +11,12 @@ class Chrono24Scraper(BaseScraper):
     name = "chrono24"
     # Reference page URL: dots and hyphens stripped from ref, brand slug merged
     _BASE = "https://www.chrono24.co.uk/{brand}/ref-{ref}.htm"
-    _SEARCH = "https://www.chrono24.co.uk/search/index.htm?query={query}&sortorder=1"
+    _SEARCH = (
+        "https://www.chrono24.co.uk/search/index.htm"
+        "?countryIds=UK&currencyId=GBP&dosearch=true"
+        "&maxAgeInDays=0&pageSize=60&sortorder=0"
+        "&query={query}&redirectToSearchIndex=true"
+    )
 
     def _ref_to_url(self, ref: str) -> str:
         return re.sub(r"[\s.\-/]", "", ref).lower()
