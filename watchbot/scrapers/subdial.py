@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class SubdialScraper(BaseScraper):
     name = "subdial"
-    _BASE = "https://subdial.co.uk/search?q={query}"
+    _BASE = "https://subdial.com/search?q={query}"
 
     def search(self, target: TargetWatch) -> list[Listing]:
         query = self._url_encode(target.reference)
@@ -38,7 +38,7 @@ class SubdialScraper(BaseScraper):
                 return None
             url = link_el.get("href", "")
             if not url.startswith("http"):
-                url = "https://subdial.co.uk" + url
+                url = "https://subdial.com" + url
 
             title_el = card.select_one("h2, h3, [class*='title']")
             title = title_el.get_text(strip=True) if title_el else full_text[:120]
