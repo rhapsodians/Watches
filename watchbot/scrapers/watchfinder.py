@@ -8,7 +8,7 @@ from watchbot.scraper_base import BaseScraper
 
 logger = logging.getLogger(__name__)
 
-_SEARCH_URL = "https://www.watchfinder.co.uk/search#q={query}"
+_SEARCH_URL = "https://www.watchfinder.co.uk/search?q={query}"
 _IDS_CACHE = "data/watchfinder_ids.json"
 
 
@@ -42,7 +42,7 @@ class WatchfinderScraper(BaseScraper):
             )
         else:
             query = self._url_encode(f"{target.brand} {target.reference}")
-            url = f"https://www.watchfinder.co.uk/search#q={query}"
+            url = f"https://www.watchfinder.co.uk/search?q={query}"
 
         soup = self._get_html_playwright(url, wait_selector=".product-card, .watches-list, main")
         if soup is None:
