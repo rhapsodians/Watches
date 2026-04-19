@@ -40,7 +40,10 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
-        run: python run.py search
+        run: |
+          mkdir -p reports
+          set -o pipefail
+          python run.py search 2>&1 | tee reports/run.log
 
       - name: Upload HTML report as artifact
         if: always()
