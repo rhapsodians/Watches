@@ -24,6 +24,7 @@ def build_scrapers(settings: dict) -> list[BaseScraper]:
     from watchbot.scrapers.acollectedman import ACollectedManScraper
     from watchbot.scrapers.fellows import FellowsScraper
     from watchbot.scrapers.sothebys import SothebyScraper
+    from watchbot.scrapers.watchtrader import WatchTraderScraper
 
     return [
         Chrono24Scraper(settings),
@@ -42,6 +43,7 @@ def build_scrapers(settings: dict) -> list[BaseScraper]:
         ACollectedManScraper(settings),
         FellowsScraper(settings),
         SothebyScraper(settings),
+        WatchTraderScraper(settings),
     ]
 
 
