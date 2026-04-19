@@ -11,7 +11,7 @@ class Chrono24Scraper(BaseScraper):
     name = "chrono24"
     # Reference page URL: dots and hyphens stripped from ref, brand slug merged
     _BASE = "https://www.chrono24.co.uk/{brand}/ref-{ref}.htm"
-    _SEARCH = "https://www.chrono24.co.uk/search/index.htm"
+    _SEARCH = "https://www.chrono24.co.uk/search/index.htm?query={query}&sortorder=1"
 
     def _ref_to_url(self, ref: str) -> str:
         return re.sub(r"[\s.\-/]", "", ref).lower()
@@ -22,8 +22,9 @@ class Chrono24Scraper(BaseScraper):
         url = self._BASE.format(brand=brand_slug, ref=ref_slug)
         soup = self._fetch(url, wait_selector="article")
         if soup is None:
-            # Fall back to search
-            soup = self._fetch(self._SEARCH, None)
+            # Fall back to keyword search with the reference number
+            search_url = self._SEARCH.format(query=self._url_encode(target.reference))
+            soup = self._fetch(search_url, wait_selector="article")
             if soup is None:
                 return []
         return self._parse_listings(soup, target)
