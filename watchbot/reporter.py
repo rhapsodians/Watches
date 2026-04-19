@@ -7,6 +7,8 @@ from watchbot.models import SearchResult
 
 
 def generate_report(results: list[SearchResult], output_dir: str = "reports") -> str:
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
     run_dt = datetime.utcnow()
     run_date = run_dt.strftime("%Y-%m-%d")
     run_time = run_dt.strftime("%H:%M")
@@ -44,7 +46,6 @@ def generate_report(results: list[SearchResult], output_dir: str = "reports") ->
         total_exact_new=total_exact_new,
     )
 
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
     out_path = os.path.join(output_dir, f"{run_date}.html")
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(html)
