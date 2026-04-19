@@ -103,10 +103,23 @@ class BaseScraper(ABC):
     def _parse_price(self, raw: str) -> float | None:
         if not raw:
             return None
-        cleaned = re.sub(r"[£$€,\s]", "", raw)
+        # Find all £/$//€ X,XXX patterns — on pre-owned dealer sites the asking
+        # price is always the lowest when a "was/now" or "RRP/our price" pair exists
+        matches = re.findall(r"[\u00a3$€]\s*([\d,]+(?:\.\d{1,2})?)", raw)
+        if matches:
+            prices = []
+            for m in matches:
+                try:
+                    prices.append(float(m.replace(",", "")))
+                except ValueError:
+                    pass
+            if prices:
+                return min(prices)
+        # Fallback: strip non-numeric and parse
+        cleaned = re.sub(r"[\u00a3$€,\s]", "", raw)
         cleaned = re.sub(r"[^\d.]", "", cleaned)
         try:
-            return float(cleaned)
+            return float(cleaned) if cleaned else None
         except ValueError:
             return None
 
