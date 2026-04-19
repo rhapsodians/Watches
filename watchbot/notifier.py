@@ -62,7 +62,6 @@ def send_email(html_body: str, results: list[SearchResult], smtp_cfg: dict) -> N
         logger.info("Email sent: %s", subject)
     except Exception as e:
         logger.error("Failed to send email: %s", e)
-        raise
 
 
 def _build_plain_text(results: list[SearchResult]) -> str:

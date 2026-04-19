@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+import traceback
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -61,7 +62,10 @@ def cmd_search(args) -> None:
     store.close()
 
     if not args.dry_run:
-        send_email(html, results, settings["notifications"]["email"])
+        try:
+            send_email(html, results, settings["notifications"]["email"])
+        except Exception as e:
+            logger.error("Email delivery failed (run still succeeded): %s", e)
     else:
         logger.info("Dry run — email not sent.")
 
