@@ -103,10 +103,19 @@ class BaseScraper(ABC):
     def _parse_price(self, raw: str) -> float | None:
         if not raw:
             return None
+        # Take the first number that follows a currency symbol (handles Shopify
+        # price elements that concatenate compare-at + sale price as one string)
+        m = re.search(r"[£$€]\s*([\d,]+(?:\.\d{1,2})?)", raw)
+        if m:
+            try:
+                return float(m.group(1).replace(",", ""))
+            except ValueError:
+                pass
+        # Fallback: strip non-numeric and parse
         cleaned = re.sub(r"[£$€,\s]", "", raw)
         cleaned = re.sub(r"[^\d.]", "", cleaned)
         try:
-            return float(cleaned)
+            return float(cleaned) if cleaned else None
         except ValueError:
             return None
 
