@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class SubdialScraper(BaseScraper):
     name = "subdial"
-    _BASE = "https://subdial.com/search?q={query}"
+    _BASE = "https://subdial.com/buy?q={query}"
 
     def search(self, target: TargetWatch) -> list[Listing]:
         query = self._url_encode(target.reference)
