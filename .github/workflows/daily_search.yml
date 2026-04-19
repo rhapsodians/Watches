@@ -14,16 +14,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create reports dir (always runs)
+        if: always()
+        run: |
+          mkdir -p reports
+          echo "=== Workflow started $(date -u) ===" > reports/run.log
+
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install Python packages
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
-          playwright install chromium --with-deps
+          pip install -r requirements.txt 2>&1 | tee -a reports/run.log
+
+      - name: Install Playwright browser
+        run: playwright install chromium --with-deps 2>&1 | tee -a reports/run.log
 
       - name: Restore seen-listings database
         uses: actions/cache@v4
@@ -41,11 +49,10 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: |
-          mkdir -p reports
           set -o pipefail
-          python run.py search 2>&1 | tee reports/run.log
+          python run.py search 2>&1 | tee -a reports/run.log
 
-      - name: Upload HTML report as artifact
+      - name: Upload report artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
