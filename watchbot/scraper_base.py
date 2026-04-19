@@ -103,14 +103,18 @@ class BaseScraper(ABC):
     def _parse_price(self, raw: str) -> float | None:
         if not raw:
             return None
-        # Take the first number that follows a currency symbol (handles Shopify
-        # price elements that concatenate compare-at + sale price as one string)
-        m = re.search(r"[£$€]\s*([\d,]+(?:\.\d{1,2})?)", raw)
-        if m:
-            try:
-                return float(m.group(1).replace(",", ""))
-            except ValueError:
-                pass
+        # Find all £/$/€ X,XXX patterns — on pre-owned dealer sites the asking
+        # price is always the lowest when a "was/now" or "RRP/our price" pair exists
+        matches = re.findall(r"[£$€]\s*([\d,]+(?:\.\d{1,2})?)", raw)
+        if matches:
+            prices = []
+            for m in matches:
+                try:
+                    prices.append(float(m.replace(",", "")))
+                except ValueError:
+                    pass
+            if prices:
+                return min(prices)
         # Fallback: strip non-numeric and parse
         cleaned = re.sub(r"[£$€,\s]", "", raw)
         cleaned = re.sub(r"[^\d.]", "", cleaned)
