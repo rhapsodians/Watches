@@ -25,6 +25,10 @@ logger = logging.getLogger("watchbot")
 
 
 def cmd_search(args) -> None:
+    import traceback as _tb
+    from pathlib import Path as _Path
+    _Path("reports").mkdir(parents=True, exist_ok=True)
+
     from watchbot.config_loader import load_watches, load_settings
     from watchbot.state import ListingStore
     from watchbot.runner import SearchRunner, build_scrapers
@@ -98,15 +102,23 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    if args.command == "search":
-        cmd_search(args)
-    elif args.command == "verify":
-        cmd_verify(args)
-    else:
-        # Default to search if no subcommand given
-        args.dry_run = False
-        args.ref = None
-        cmd_search(args)
+    try:
+        if args.command == "search":
+            cmd_search(args)
+        elif args.command == "verify":
+            cmd_verify(args)
+        else:
+            # Default to search if no subcommand given
+            args.dry_run = False
+            args.ref = None
+            cmd_search(args)
+    except Exception:
+        from pathlib import Path
+        tb = traceback.format_exc()
+        logger.error("Fatal unhandled exception:\n%s", tb)
+        Path("reports").mkdir(parents=True, exist_ok=True)
+        Path("reports/error.txt").write_text(tb)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
